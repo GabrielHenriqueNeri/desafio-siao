@@ -120,6 +120,11 @@ Listagens respondem no envelope `{ dados, total, pagina, limite, total_paginas }
 
 ## 3. Decisões técnicas
 
+- **Identidade visual da Sião** — a interface segue o branding oficial de
+  [siao.com.br](https://www.siao.com.br): verde `#09F208` sempre sobre texto
+  preto, superfícies escuras `#0A0A0A`, off-white `#FAFAFA`, tipografia
+  **Sora** (interface) + **Cormorant Garamond** (títulos) e a logomarca
+  oficial em SVG.
 - **Fidelidade ao modelo ER** — tabelas, colunas e tipos seguem o diagrama do
   desafio, incluindo os campos desnormalizados (`responsavel_*` no cartório e
   `proprietario_*` no imóvel) e os `deleted_at`, implementados como

@@ -1,20 +1,6 @@
 import { NavLink, Outlet } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
-
-export function MarcaSiao({ tamanho = 30 }: { tamanho?: number }) {
-  return (
-    <svg width={tamanho} height={tamanho} viewBox="0 0 48 48" aria-hidden="true">
-      <rect x="4" y="4" width="40" height="40" rx="10" fill="#2E5AAC" />
-      <path
-        d="M15 30.5c1.8 2.4 4.6 3.8 8 3.8 4.4 0 7.5-2.2 7.5-5.6 0-3.1-2-4.6-6.3-5.6l-2.4-.6c-2.4-.6-3.4-1.4-3.4-2.9 0-1.8 1.7-3 4.2-3 2.4 0 4.3 1 5.6 2.8"
-        fill="none"
-        stroke="#fff"
-        strokeWidth="3"
-        strokeLinecap="round"
-      />
-    </svg>
-  );
-}
+import { LogoSiao } from './LogoSiao';
 
 const LINKS = [
   { para: '/', rotulo: 'Dashboard', fim: true },
@@ -31,8 +17,7 @@ export function Layout() {
     <div className="app">
       <aside className="lateral">
         <div className="marca">
-          <MarcaSiao />
-          <span>Sião</span>
+          <LogoSiao largura={104} corPalavra="#FFFFFF" />
         </div>
         <nav>
           {LINKS.map((link) => (

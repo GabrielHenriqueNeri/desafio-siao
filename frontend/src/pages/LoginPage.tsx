@@ -2,7 +2,7 @@ import { FormEvent, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { extrairErro } from '../api/client';
 import { useAuth } from '../auth/AuthContext';
-import { MarcaSiao } from '../components/Layout';
+import { LogoSiao } from '../components/LogoSiao';
 import { Campo, ErroForm } from '../components/ui';
 
 const REGISTRO_INICIAL = {
@@ -53,12 +53,11 @@ export function LoginPage() {
     <div className="pagina-login">
       <div className={modo === 'registro' ? 'caixa-login larga' : 'caixa-login'}>
         <div className="marca-login">
-          <MarcaSiao tamanho={36} />
-          <span>Sião · Cartórios e Imóveis</span>
+          <LogoSiao largura={118} corPalavra="#0A0A0A" />
         </div>
         <p className="descricao">
           {modo === 'login'
-            ? 'Entre com seu e-mail e senha para acessar o sistema.'
+            ? 'Gestão de cartórios e imóveis — entre com seu e-mail e senha.'
             : 'Preencha seus dados para criar a conta de acesso.'}
         </p>
 

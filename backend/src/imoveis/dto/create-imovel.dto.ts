@@ -2,18 +2,19 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import {
   IsEnum,
+  IsIn,
   IsInt,
   IsNumber,
   IsOptional,
   IsPositive,
   IsString,
-  Length,
   Matches,
   MaxLength,
   Min,
   MinLength,
 } from 'class-validator';
 import { IsCpf } from '../../common/validators/documento.validator';
+import { MENSAGEM_UF_INVALIDA, UFS_BRASIL } from '../../common/validators/uf.constante';
 import { StatusImovel, TipoImovel } from '../entities/imovel.entity';
 
 export class CreateImovelDto {
@@ -48,9 +49,8 @@ export class CreateImovelDto {
   @MaxLength(80)
   cidade: string;
 
-  @ApiProperty({ example: 'PE', description: 'UF com 2 letras maiúsculas' })
-  @Length(2, 2)
-  @Matches(/^[A-Z]{2}$/, { message: 'Estado deve ser a UF com 2 letras maiúsculas (ex.: PE)' })
+  @ApiProperty({ example: 'PE', description: 'UF brasileira válida', enum: UFS_BRASIL })
+  @IsIn(UFS_BRASIL, { message: MENSAGEM_UF_INVALIDA })
   estado: string;
 
   @ApiProperty({ example: '50050-000', maxLength: 9 })

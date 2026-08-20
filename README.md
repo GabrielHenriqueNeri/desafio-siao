@@ -139,9 +139,9 @@ Listagens respondem no envelope `{ dados, total, pagina, limite, total_paginas }
   - índices nas FKs e colunas mais filtradas.
 - **Validação em camadas** — DTOs com `class-validator` (whitelist +
   `forbidNonWhitelisted`), incluindo validação **real de CPF/CNPJ por dígito
-  verificador**; regras de negócio no service (409 para duplicidades, bloqueio
-  de exclusão de cartório com vínculos ativos); constraints no banco como
-  última barreira.
+  verificador** e UF conferida contra a **lista das 27 unidades federativas**;
+  regras de negócio no service (409 para duplicidades, bloqueio de exclusão de
+  cartório com vínculos ativos); constraints no banco como última barreira.
 - **Segurança**:
   - senhas com **bcrypt** (nunca retornadas: `select: false` + `@Exclude`);
   - JWT com expiração configurável; guard global (tudo exige token, exceto

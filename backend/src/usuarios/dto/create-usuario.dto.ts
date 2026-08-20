@@ -2,15 +2,16 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import {
   IsEmail,
+  IsIn,
   IsInt,
   IsOptional,
   IsString,
-  Length,
   Matches,
   MaxLength,
   MinLength,
 } from 'class-validator';
 import { IsCpf } from '../../common/validators/documento.validator';
+import { MENSAGEM_UF_INVALIDA, UFS_BRASIL } from '../../common/validators/uf.constante';
 
 export class CreateUsuarioDto {
   @ApiProperty({ example: 'Maria da Silva', maxLength: 120 })
@@ -56,9 +57,8 @@ export class CreateUsuarioDto {
   @MaxLength(80)
   cidade: string;
 
-  @ApiProperty({ example: 'PE', description: 'UF com 2 letras maiúsculas' })
-  @Length(2, 2)
-  @Matches(/^[A-Z]{2}$/, { message: 'Estado deve ser a UF com 2 letras maiúsculas (ex.: PE)' })
+  @ApiProperty({ example: 'PE', description: 'UF brasileira válida', enum: UFS_BRASIL })
+  @IsIn(UFS_BRASIL, { message: MENSAGEM_UF_INVALIDA })
   estado: string;
 
   @ApiProperty({ example: '50030-230', maxLength: 9 })

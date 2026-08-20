@@ -209,7 +209,7 @@ select {
 /* ---------- Cards e tabelas ---------- */
 .cartoes {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
   gap: 14px;
   margin-bottom: 24px;
 }
@@ -235,6 +235,16 @@ select {
   font-weight: 700;
   margin-top: 6px;
   color: var(--escuro);
+  line-height: 1.2;
+  /* Valores monetários em pt-BR usam espaço não-quebrável — sem esta trava,
+     números longos vazariam do card em vez de quebrar linha */
+  overflow-wrap: anywhere;
+}
+
+/* Valores longos (moeda, área) em corpo menor para caber em uma linha */
+.cartao .valor.menor {
+  font-size: 19px;
+  padding-top: 5px;
 }
 
 .cartao.destaque {

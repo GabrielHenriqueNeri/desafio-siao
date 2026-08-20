@@ -82,11 +82,11 @@ export function DashboardPage() {
         </div>
         <div className="cartao destaque">
           <div className="rotulo">Valor avaliado</div>
-          <div className="valor">{fmtBRL.format(resumo.valor_total_avaliado)}</div>
+          <div className="valor menor">{fmtBRL.format(resumo.valor_total_avaliado)}</div>
         </div>
         <div className="cartao destaque">
           <div className="rotulo">Área registrada</div>
-          <div className="valor">{fmtNum.format(resumo.area_total_registrada)} m²</div>
+          <div className="valor menor">{fmtNum.format(resumo.area_total_registrada)} m²</div>
         </div>
       </div>
 

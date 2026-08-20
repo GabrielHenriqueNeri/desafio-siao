@@ -228,14 +228,12 @@ export function ImoveisPage() {
             <table>
               <thead>
                 <tr>
-                  <th>Matrícula</th>
+                  <th>Matrícula / Cartório</th>
                   <th>Tipo</th>
                   <th>Endereço</th>
                   <th>Proprietário</th>
-                  <th>Área</th>
-                  <th>Valor avaliado</th>
+                  <th>Valor / Área</th>
                   <th>Status</th>
-                  <th>Cartório</th>
                   <th style={{ textAlign: 'right' }}>Ações</th>
                 </tr>
               </thead>
@@ -243,7 +241,10 @@ export function ImoveisPage() {
                 {lista.dados.map((imovel) => (
                   <tr key={imovel.id}>
                     <td>
-                      <span className="principal-cell">{imovel.matricula}</span>
+                      <div className="principal-cell" style={{ whiteSpace: 'nowrap' }}>
+                        {imovel.matricula}
+                      </div>
+                      <div className="secundaria-cell">{imovel.cartorio?.nome ?? '—'}</div>
                     </td>
                     <td>{TIPOS_IMOVEL[imovel.tipo] ?? imovel.tipo}</td>
                     <td>
@@ -258,16 +259,15 @@ export function ImoveisPage() {
                       <div>{imovel.proprietario_nome}</div>
                       <div className="secundaria-cell">{imovel.proprietario_cpf}</div>
                     </td>
-                    <td>{fmtNum.format(imovel.area_total)} m²</td>
-                    <td>{fmtBRL.format(imovel.valor_avaliado)}</td>
+                    <td className="nowrap">
+                      <div>{fmtBRL.format(imovel.valor_avaliado)}</div>
+                      <div className="secundaria-cell">{fmtNum.format(imovel.area_total)} m²</div>
+                    </td>
                     <td>
                       <BadgeStatus
                         status={imovel.status}
                         rotulo={STATUS_IMOVEL[imovel.status] ?? imovel.status}
                       />
-                    </td>
-                    <td>
-                      <span className="secundaria-cell">{imovel.cartorio?.nome ?? '—'}</span>
                     </td>
                     <td>
                       <div className="acoes-cell">

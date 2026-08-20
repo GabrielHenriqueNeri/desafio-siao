@@ -1,0 +1,16 @@
+# Dependências
+node_modules/
+
+# Builds
+dist/
+coverage/
+
+# Ambiente — nunca versionar segredos
+.env
+*.env.local
+
+# Logs e temporários
+*.log
+npm-debug.log*
+.DS_Store
+Thumbs.db

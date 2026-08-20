@@ -1,0 +1,49 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: siao-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: desafio_siao
+    volumes:
+      - dados_pg:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres -d desafio_siao']
+      interval: 5s
+      timeout: 5s
+      retries: 12
+
+  api:
+    build: ./backend
+    container_name: siao-api
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USERNAME: postgres
+      DB_PASSWORD: postgres
+      DB_DATABASE: desafio_siao
+      # Em produção real este segredo viria de um cofre/variável externa
+      JWT_SECRET: troque-este-segredo-por-um-valor-longo-e-aleatorio
+      JWT_EXPIRES_IN: 1d
+      CORS_ORIGIN: http://localhost:8080
+      THROTTLE_TTL: 60000
+      THROTTLE_LIMIT: 100
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - '3000:3000'
+
+  web:
+    build: ./frontend
+    container_name: siao-web
+    depends_on:
+      - api
+    ports:
+      - '8080:80'
+
+volumes:
+  dados_pg:

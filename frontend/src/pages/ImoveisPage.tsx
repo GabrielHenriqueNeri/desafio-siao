@@ -15,6 +15,7 @@ import {
   Campo,
   Carregando,
   ErroForm,
+  EstadoErro,
   EstadoVazio,
   Modal,
   Paginacao,
@@ -47,6 +48,7 @@ export function ImoveisPage() {
   const [filtroStatus, setFiltroStatus] = useState('');
   const [pagina, setPagina] = useState(1);
   const [carregando, setCarregando] = useState(true);
+  const [erroLista, setErroLista] = useState<string | null>(null);
 
   const [modalAberto, setModalAberto] = useState(false);
   const [editando, setEditando] = useState<Imovel | null>(null);
@@ -58,12 +60,17 @@ export function ImoveisPage() {
   const [erroExclusao, setErroExclusao] = useState<string | null>(null);
 
   useEffect(() => {
-    // Carrega opções do select de cartórios uma única vez
-    cartoriosApi.listar({ pagina: 1, limite: 100 }).then((r) => setCartorios(r.dados));
+    // Carrega opções do select de cartórios uma única vez;
+    // se falhar, o erro visível fica por conta da listagem principal
+    cartoriosApi
+      .listar({ pagina: 1, limite: 100 })
+      .then((r) => setCartorios(r.dados))
+      .catch(() => setCartorios([]));
   }, []);
 
   const carregar = useCallback(() => {
     setCarregando(true);
+    setErroLista(null);
     imoveisApi
       .listar({
         pagina,
@@ -73,6 +80,7 @@ export function ImoveisPage() {
         status: filtroStatus || undefined,
       })
       .then(setLista)
+      .catch((excecao) => setErroLista(extrairErro(excecao)))
       .finally(() => setCarregando(false));
   }, [pagina, busca, filtroTipo, filtroStatus]);
 
@@ -208,7 +216,11 @@ export function ImoveisPage() {
           </div>
         </div>
         <div className="rolagem">
-          {carregando || !lista ? (
+          {erroLista ? (
+            <div style={{ padding: 18 }}>
+              <EstadoErro mensagem={erroLista} aoTentarNovamente={carregar} />
+            </div>
+          ) : carregando || !lista ? (
             <Carregando />
           ) : lista.dados.length === 0 ? (
             <EstadoVazio mensagem="Nenhum imóvel encontrado com esses filtros." />
@@ -279,7 +291,9 @@ export function ImoveisPage() {
             </table>
           )}
         </div>
-        {lista && lista.dados.length > 0 && <Paginacao dados={lista} aoMudar={setPagina} />}
+        {!erroLista && lista && lista.dados.length > 0 && (
+          <Paginacao dados={lista} aoMudar={setPagina} />
+        )}
       </div>
 
       <Modal

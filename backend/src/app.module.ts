@@ -7,6 +7,7 @@ import { AuthModule } from './auth/auth.module';
 import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
 import { CartoriosModule } from './cartorios/cartorios.module';
 import { envValidationSchema } from './config/env.validation';
+import { HealthController } from './health/health.controller';
 import { ImoveisModule } from './imoveis/imoveis.module';
 import { RelatoriosModule } from './relatorios/relatorios.module';
 import { UsuariosModule } from './usuarios/usuarios.module';
@@ -50,6 +51,7 @@ import { UsuariosModule } from './usuarios/usuarios.module';
     ImoveisModule,
     RelatoriosModule,
   ],
+  controllers: [HealthController],
   providers: [
     // Guards globais: todo endpoint exige JWT por padrão (@Public libera exceções)
     { provide: APP_GUARD, useClass: ThrottlerGuard },

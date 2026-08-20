@@ -92,6 +92,24 @@ export function Carregando() {
   return <div className="carregando">Carregando…</div>;
 }
 
+/** Falha de carregamento com ação de recuperação — nunca deixar a tela em loading eterno. */
+export function EstadoErro({
+  mensagem,
+  aoTentarNovamente,
+}: {
+  mensagem: string;
+  aoTentarNovamente: () => void;
+}) {
+  return (
+    <div className="estado-erro">
+      <p>{mensagem}</p>
+      <button className="btn" onClick={aoTentarNovamente}>
+        Tentar novamente
+      </button>
+    </div>
+  );
+}
+
 export function EstadoVazio({ mensagem }: { mensagem: string }) {
   return <div className="estado-vazio">{mensagem}</div>;
 }

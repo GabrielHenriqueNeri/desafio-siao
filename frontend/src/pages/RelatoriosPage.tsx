@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
+import { extrairErro } from '../api/client';
 import { relatoriosApi } from '../api/services';
 import {
   fmtBRL,
@@ -7,7 +8,7 @@ import {
   STATUS_IMOVEL,
   TIPOS_IMOVEL,
 } from '../api/types';
-import { Carregando, EstadoVazio } from '../components/ui';
+import { Carregando, EstadoErro, EstadoVazio } from '../components/ui';
 
 function TabelaAgrupada({
   titulo,
@@ -53,8 +54,11 @@ export function RelatoriosPage() {
   const [porTipo, setPorTipo] = useState<LinhaAgrupada[]>([]);
   const [porStatus, setPorStatus] = useState<LinhaAgrupada[]>([]);
   const [carregando, setCarregando] = useState(true);
+  const [erro, setErro] = useState<string | null>(null);
 
-  useEffect(() => {
+  const carregar = useCallback(() => {
+    setCarregando(true);
+    setErro(null);
     Promise.all([
       relatoriosApi.porCartorio(),
       relatoriosApi.porTipo(),
@@ -65,8 +69,27 @@ export function RelatoriosPage() {
         setPorTipo(tipos);
         setPorStatus(status);
       })
+      .catch((excecao) => setErro(extrairErro(excecao)))
       .finally(() => setCarregando(false));
   }, []);
+
+  useEffect(() => {
+    carregar();
+  }, [carregar]);
+
+  if (erro) {
+    return (
+      <>
+        <div className="topo-pagina">
+          <div>
+            <h1>Relatórios</h1>
+            <div className="sub">Consolidados do acervo por cartório, tipo e status</div>
+          </div>
+        </div>
+        <EstadoErro mensagem={erro} aoTentarNovamente={carregar} />
+      </>
+    );
+  }
 
   if (carregando) return <Carregando />;
 

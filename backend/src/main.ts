@@ -45,6 +45,7 @@ async function bootstrap(): Promise<void> {
       { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' },
       'bearer',
     )
+    .addTag('Health', 'Diagnóstico da API e do banco')
     .addTag('Auth', 'Registro, login e perfil do usuário autenticado')
     .addTag('Cartórios', 'CRUD de cartórios')
     .addTag('Usuários', 'CRUD de usuários')

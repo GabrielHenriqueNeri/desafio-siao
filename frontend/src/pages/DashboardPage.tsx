@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
+import { extrairErro } from '../api/client';
 import { imoveisApi, relatoriosApi } from '../api/services';
 import {
   fmtBRL,
@@ -9,15 +10,18 @@ import {
   STATUS_IMOVEL,
   TIPOS_IMOVEL,
 } from '../api/types';
-import { BadgeStatus, Carregando, EstadoVazio } from '../components/ui';
+import { BadgeStatus, Carregando, EstadoErro, EstadoVazio } from '../components/ui';
 
 export function DashboardPage() {
   const [resumo, setResumo] = useState<ResumoGeral | null>(null);
   const [porTipo, setPorTipo] = useState<LinhaAgrupada[]>([]);
   const [recentes, setRecentes] = useState<Imovel[]>([]);
   const [carregando, setCarregando] = useState(true);
+  const [erro, setErro] = useState<string | null>(null);
 
-  useEffect(() => {
+  const carregar = useCallback(() => {
+    setCarregando(true);
+    setErro(null);
     Promise.all([
       relatoriosApi.resumo(),
       relatoriosApi.porTipo(),
@@ -28,8 +32,27 @@ export function DashboardPage() {
         setPorTipo(tipos);
         setRecentes(imoveis.dados);
       })
+      .catch((excecao) => setErro(extrairErro(excecao)))
       .finally(() => setCarregando(false));
   }, []);
+
+  useEffect(() => {
+    carregar();
+  }, [carregar]);
+
+  if (erro) {
+    return (
+      <>
+        <div className="topo-pagina">
+          <div>
+            <h1>Dashboard</h1>
+            <div className="sub">Visão geral do acervo registrado</div>
+          </div>
+        </div>
+        <EstadoErro mensagem={erro} aoTentarNovamente={carregar} />
+      </>
+    );
+  }
 
   if (carregando || !resumo) return <Carregando />;
 

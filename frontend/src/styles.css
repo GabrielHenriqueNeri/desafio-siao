@@ -584,6 +584,24 @@ select:focus {
   color: var(--texto-suave);
 }
 
+.estado-erro {
+  background: var(--perigo-fundo);
+  border: 1px solid rgba(192, 57, 43, 0.25);
+  border-radius: var(--raio);
+  padding: 22px 24px;
+  margin-bottom: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.estado-erro p {
+  color: var(--perigo);
+  font-size: 13.5px;
+  font-weight: 500;
+}
+
 .link {
   color: var(--verde-texto);
   font-weight: 600;

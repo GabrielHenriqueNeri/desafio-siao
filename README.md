@@ -99,6 +99,7 @@ O contrato OpenAPI também está exportado em [`docs/openapi.json`](docs/openapi
 
 | Método | Rota | Descrição | Auth |
 |---|---|---|---|
+| GET | `/api/health` | Diagnóstico: API e banco no ar (503 se o banco cair) | pública |
 | POST | `/api/auth/register` | Cria usuário e devolve token | pública |
 | POST | `/api/auth/login` | Autentica e devolve token JWT | pública |
 | GET | `/api/auth/perfil` | Usuário do token atual | JWT |
@@ -151,6 +152,11 @@ Listagens respondem no envelope `{ dados, total, pagina, limite, total_paginas }
   - container da API roda com usuário não-root.
 - **Relatórios** — agregações feitas no PostgreSQL (`JOIN` + `GROUP BY` +
   `SUM/COUNT`) via QueryBuilder, não em memória.
+- **Resiliência a falhas de ambiente** — `GET /api/health` (público) confirma
+  API + banco e alimenta o healthcheck do Docker; no frontend, falha de
+  carregamento nunca fica em "Carregando…" eterno: cada tela mostra a causa
+  ("API indisponível — verifique se o backend está no ar") com botão
+  **Tentar novamente**.
 
 ## 4. Testes
 

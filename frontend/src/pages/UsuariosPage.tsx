@@ -6,6 +6,7 @@ import {
   Campo,
   Carregando,
   ErroForm,
+  EstadoErro,
   EstadoVazio,
   Modal,
   Paginacao,
@@ -32,6 +33,7 @@ export function UsuariosPage() {
   const [busca, setBusca] = useState('');
   const [pagina, setPagina] = useState(1);
   const [carregando, setCarregando] = useState(true);
+  const [erroLista, setErroLista] = useState<string | null>(null);
 
   const [modalAberto, setModalAberto] = useState(false);
   const [editando, setEditando] = useState<Usuario | null>(null);
@@ -43,14 +45,19 @@ export function UsuariosPage() {
   const [erroExclusao, setErroExclusao] = useState<string | null>(null);
 
   useEffect(() => {
-    cartoriosApi.listar({ pagina: 1, limite: 100 }).then((r) => setCartorios(r.dados));
+    cartoriosApi
+      .listar({ pagina: 1, limite: 100 })
+      .then((r) => setCartorios(r.dados))
+      .catch(() => setCartorios([]));
   }, []);
 
   const carregar = useCallback(() => {
     setCarregando(true);
+    setErroLista(null);
     usuariosApi
       .listar({ pagina, limite: 10, busca })
       .then(setLista)
+      .catch((excecao) => setErroLista(extrairErro(excecao)))
       .finally(() => setCarregando(false));
   }, [pagina, busca]);
 
@@ -160,7 +167,11 @@ export function UsuariosPage() {
           </div>
         </div>
         <div className="rolagem">
-          {carregando || !lista ? (
+          {erroLista ? (
+            <div style={{ padding: 18 }}>
+              <EstadoErro mensagem={erroLista} aoTentarNovamente={carregar} />
+            </div>
+          ) : carregando || !lista ? (
             <Carregando />
           ) : lista.dados.length === 0 ? (
             <EstadoVazio mensagem="Nenhum usuário encontrado." />
@@ -215,7 +226,9 @@ export function UsuariosPage() {
             </table>
           )}
         </div>
-        {lista && lista.dados.length > 0 && <Paginacao dados={lista} aoMudar={setPagina} />}
+        {!erroLista && lista && lista.dados.length > 0 && (
+          <Paginacao dados={lista} aoMudar={setPagina} />
+        )}
       </div>
 
       <Modal

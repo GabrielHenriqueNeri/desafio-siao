@@ -6,6 +6,7 @@ import {
   Campo,
   Carregando,
   ErroForm,
+  EstadoErro,
   EstadoVazio,
   Modal,
   Paginacao,
@@ -33,6 +34,7 @@ export function CartoriosPage() {
   const [busca, setBusca] = useState('');
   const [pagina, setPagina] = useState(1);
   const [carregando, setCarregando] = useState(true);
+  const [erroLista, setErroLista] = useState<string | null>(null);
 
   const [modalAberto, setModalAberto] = useState(false);
   const [editando, setEditando] = useState<Cartorio | null>(null);
@@ -45,9 +47,11 @@ export function CartoriosPage() {
 
   const carregar = useCallback(() => {
     setCarregando(true);
+    setErroLista(null);
     cartoriosApi
       .listar({ pagina, limite: 10, busca })
       .then(setLista)
+      .catch((excecao) => setErroLista(extrairErro(excecao)))
       .finally(() => setCarregando(false));
   }, [pagina, busca]);
 
@@ -150,7 +154,11 @@ export function CartoriosPage() {
           </div>
         </div>
         <div className="rolagem">
-          {carregando || !lista ? (
+          {erroLista ? (
+            <div style={{ padding: 18 }}>
+              <EstadoErro mensagem={erroLista} aoTentarNovamente={carregar} />
+            </div>
+          ) : carregando || !lista ? (
             <Carregando />
           ) : lista.dados.length === 0 ? (
             <EstadoVazio mensagem="Nenhum cartório encontrado." />
@@ -209,7 +217,9 @@ export function CartoriosPage() {
             </table>
           )}
         </div>
-        {lista && lista.dados.length > 0 && <Paginacao dados={lista} aoMudar={setPagina} />}
+        {!erroLista && lista && lista.dados.length > 0 && (
+          <Paginacao dados={lista} aoMudar={setPagina} />
+        )}
       </div>
 
       <Modal

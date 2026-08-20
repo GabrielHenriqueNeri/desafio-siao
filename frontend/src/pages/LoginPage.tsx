@@ -4,6 +4,7 @@ import { extrairErro } from '../api/client';
 import { useAuth } from '../auth/AuthContext';
 import { LogoSiao } from '../components/LogoSiao';
 import { Campo, ErroForm } from '../components/ui';
+import { mascaraCep, mascaraCpf, mascaraTelefone } from '../utils/mascaras';
 
 const REGISTRO_INICIAL = {
   nome: '',
@@ -102,7 +103,7 @@ export function LoginPage() {
                 <input
                   type="text"
                   value={registro.cpf}
-                  onChange={(e) => mudarRegistro('cpf', e.target.value)}
+                  onChange={(e) => mudarRegistro('cpf', mascaraCpf(e.target.value))}
                   placeholder="000.000.000-00"
                   required
                 />
@@ -111,7 +112,7 @@ export function LoginPage() {
                 <input
                   type="text"
                   value={registro.telefone}
-                  onChange={(e) => mudarRegistro('telefone', e.target.value)}
+                  onChange={(e) => mudarRegistro('telefone', mascaraTelefone(e.target.value))}
                   placeholder="(81) 90000-0000"
                   required
                 />
@@ -164,7 +165,7 @@ export function LoginPage() {
                 <input
                   type="text"
                   value={registro.cep}
-                  onChange={(e) => mudarRegistro('cep', e.target.value)}
+                  onChange={(e) => mudarRegistro('cep', mascaraCep(e.target.value))}
                   placeholder="00000-000"
                   required
                 />

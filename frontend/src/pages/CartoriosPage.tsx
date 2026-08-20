@@ -1,6 +1,8 @@
 import { FormEvent, useCallback, useEffect, useState } from 'react';
 import { extrairErro } from '../api/client';
 import { cartoriosApi } from '../api/services';
+import { mascaraCep, mascaraCnpj, mascaraCpf, mascaraTelefone } from '../utils/mascaras';
+import { useDebounce } from '../utils/useDebounce';
 import { Cartorio, Paginated } from '../api/types';
 import {
   Campo,
@@ -32,6 +34,7 @@ type FormCartorio = typeof FORM_INICIAL;
 export function CartoriosPage() {
   const [lista, setLista] = useState<Paginated<Cartorio> | null>(null);
   const [busca, setBusca] = useState('');
+  const buscaEstavel = useDebounce(busca);
   const [pagina, setPagina] = useState(1);
   const [carregando, setCarregando] = useState(true);
   const [erroLista, setErroLista] = useState<string | null>(null);
@@ -49,11 +52,11 @@ export function CartoriosPage() {
     setCarregando(true);
     setErroLista(null);
     cartoriosApi
-      .listar({ pagina, limite: 10, busca })
+      .listar({ pagina, limite: 10, busca: buscaEstavel })
       .then(setLista)
       .catch((excecao) => setErroLista(extrairErro(excecao)))
       .finally(() => setCarregando(false));
-  }, [pagina, busca]);
+  }, [pagina, buscaEstavel]);
 
   useEffect(() => {
     carregar();
@@ -244,10 +247,10 @@ export function CartoriosPage() {
               <input type="text" value={form.nome} onChange={(e) => mudar('nome', e.target.value)} required />
             </Campo>
             <Campo rotulo="CNPJ">
-              <input type="text" value={form.cnpj} onChange={(e) => mudar('cnpj', e.target.value)} placeholder="00.000.000/0000-00" required />
+              <input type="text" value={form.cnpj} onChange={(e) => mudar('cnpj', mascaraCnpj(e.target.value))} placeholder="00.000.000/0000-00" required />
             </Campo>
             <Campo rotulo="Telefone">
-              <input type="text" value={form.telefone} onChange={(e) => mudar('telefone', e.target.value)} required />
+              <input type="text" value={form.telefone} onChange={(e) => mudar('telefone', mascaraTelefone(e.target.value))} placeholder="(81) 90000-0000" required />
             </Campo>
             <Campo rotulo="E-mail" larguraTotal>
               <input type="email" value={form.email} onChange={(e) => mudar('email', e.target.value)} required />
@@ -268,13 +271,13 @@ export function CartoriosPage() {
               <input type="text" value={form.estado} onChange={(e) => mudar('estado', e.target.value)} maxLength={2} placeholder="PE" required />
             </Campo>
             <Campo rotulo="CEP">
-              <input type="text" value={form.cep} onChange={(e) => mudar('cep', e.target.value)} placeholder="00000-000" required />
+              <input type="text" value={form.cep} onChange={(e) => mudar('cep', mascaraCep(e.target.value))} placeholder="00000-000" required />
             </Campo>
             <Campo rotulo="Nome do responsável">
               <input type="text" value={form.responsavel_nome} onChange={(e) => mudar('responsavel_nome', e.target.value)} required />
             </Campo>
             <Campo rotulo="CPF do responsável">
-              <input type="text" value={form.responsavel_cpf} onChange={(e) => mudar('responsavel_cpf', e.target.value)} placeholder="000.000.000-00" required />
+              <input type="text" value={form.responsavel_cpf} onChange={(e) => mudar('responsavel_cpf', mascaraCpf(e.target.value))} placeholder="000.000.000-00" required />
             </Campo>
           </div>
         </form>

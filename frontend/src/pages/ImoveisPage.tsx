@@ -1,6 +1,9 @@
 import { FormEvent, useCallback, useEffect, useState } from 'react';
 import { extrairErro } from '../api/client';
-import { cartoriosApi, imoveisApi } from '../api/services';
+import { cartoriosApi, imoveisApi, relatoriosApi } from '../api/services';
+import { baixarArquivo } from '../utils/baixarArquivo';
+import { mascaraCep, mascaraCpf } from '../utils/mascaras';
+import { useDebounce } from '../utils/useDebounce';
 import {
   Cartorio,
   fmtBRL,
@@ -44,6 +47,8 @@ export function ImoveisPage() {
   const [lista, setLista] = useState<Paginated<Imovel> | null>(null);
   const [cartorios, setCartorios] = useState<Cartorio[]>([]);
   const [busca, setBusca] = useState('');
+  const buscaEstavel = useDebounce(busca);
+  const [exportando, setExportando] = useState(false);
   const [filtroTipo, setFiltroTipo] = useState('');
   const [filtroStatus, setFiltroStatus] = useState('');
   const [pagina, setPagina] = useState(1);
@@ -75,14 +80,14 @@ export function ImoveisPage() {
       .listar({
         pagina,
         limite: 10,
-        busca,
+        busca: buscaEstavel,
         tipo: filtroTipo || undefined,
         status: filtroStatus || undefined,
       })
       .then(setLista)
       .catch((excecao) => setErroLista(extrairErro(excecao)))
       .finally(() => setCarregando(false));
-  }, [pagina, busca, filtroTipo, filtroStatus]);
+  }, [pagina, buscaEstavel, filtroTipo, filtroStatus]);
 
   useEffect(() => {
     carregar();
@@ -159,6 +164,16 @@ export function ImoveisPage() {
     }
   }
 
+  async function exportarCsv() {
+    setExportando(true);
+    try {
+      const csv = await relatoriosApi.exportarImoveisCsv();
+      baixarArquivo(csv, 'imoveis.csv');
+    } finally {
+      setExportando(false);
+    }
+  }
+
   return (
     <>
       <div className="topo-pagina">
@@ -166,9 +181,14 @@ export function ImoveisPage() {
           <h1>Imóveis</h1>
           <div className="sub">Registro de imóveis por cartório</div>
         </div>
-        <button className="btn principal" onClick={abrirCriar}>
-          + Novo imóvel
-        </button>
+        <div style={{ display: 'flex', gap: 10 }}>
+          <button className="btn" onClick={exportarCsv} disabled={exportando}>
+            {exportando ? 'Exportando…' : '⬇ Exportar CSV'}
+          </button>
+          <button className="btn principal" onClick={abrirCriar}>
+            + Novo imóvel
+          </button>
+        </div>
       </div>
 
       <div className="painel">
@@ -363,7 +383,7 @@ export function ImoveisPage() {
               <input type="text" value={form.estado} onChange={(e) => mudar('estado', e.target.value)} maxLength={2} placeholder="PE" required />
             </Campo>
             <Campo rotulo="CEP">
-              <input type="text" value={form.cep} onChange={(e) => mudar('cep', e.target.value)} placeholder="00000-000" required />
+              <input type="text" value={form.cep} onChange={(e) => mudar('cep', mascaraCep(e.target.value))} placeholder="00000-000" required />
             </Campo>
             <Campo rotulo="Área total (m²)">
               <input type="number" min={0.01} step="0.01" value={form.area_total} onChange={(e) => mudar('area_total', e.target.value)} required />
@@ -375,7 +395,7 @@ export function ImoveisPage() {
               <input type="text" value={form.proprietario_nome} onChange={(e) => mudar('proprietario_nome', e.target.value)} required />
             </Campo>
             <Campo rotulo="CPF do proprietário">
-              <input type="text" value={form.proprietario_cpf} onChange={(e) => mudar('proprietario_cpf', e.target.value)} placeholder="000.000.000-00" required />
+              <input type="text" value={form.proprietario_cpf} onChange={(e) => mudar('proprietario_cpf', mascaraCpf(e.target.value))} placeholder="000.000.000-00" required />
             </Campo>
           </div>
         </form>

@@ -1,5 +1,7 @@
 # Desafio Sião — Gestão de Cartórios e Imóveis
 
+![CI](https://github.com/GabrielHenriqueNeri/desafio-siao/actions/workflows/ci.yml/badge.svg)
+
 Sistema completo (API + frontend) desenvolvido para o desafio técnico de
 Desenvolvedor da Sião, com base no modelo ER fornecido (CARTORIO, USUARIO e
 IMOVEL).
@@ -114,6 +116,7 @@ O contrato OpenAPI também está exportado em [`docs/openapi.json`](docs/openapi
 | GET | `/api/relatorios/imoveis-por-cartorio` | Consolidado por cartório | JWT |
 | GET | `/api/relatorios/imoveis-por-tipo` | Distribuição por tipo | JWT |
 | GET | `/api/relatorios/imoveis-por-status` | Distribuição por status | JWT |
+| GET | `/api/relatorios/exportar/imoveis` | Download do acervo em CSV (abre no Excel) | JWT |
 
 Listagens respondem no envelope `{ dados, total, pagina, limite, total_paginas }`.
 
@@ -157,6 +160,12 @@ Listagens respondem no envelope `{ dados, total, pagina, limite, total_paginas }
   carregamento nunca fica em "Carregando…" eterno: cada tela mostra a causa
   ("API indisponível — verifique se o backend está no ar") com botão
   **Tentar novamente**.
+- **Integração contínua** — GitHub Actions compila e roda os testes do
+  backend e o typecheck/build do frontend a cada push (badge no topo).
+- **Qualidade de uso** — máscaras automáticas de CPF/CNPJ/CEP/telefone nos
+  formulários, busca com debounce (não dispara uma requisição por tecla) e
+  exportação do acervo de imóveis em CSV compatível com Excel (separador
+  `;` + BOM UTF-8, campos escapados conforme RFC 4180).
 
 ## 4. Testes
 

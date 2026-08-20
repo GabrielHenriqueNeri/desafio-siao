@@ -68,6 +68,10 @@ export const imoveisApi = {
 
 export const relatoriosApi = {
   resumo: () => api.get<ResumoGeral>('/relatorios/resumo').then((r) => r.data),
+  exportarImoveisCsv: () =>
+    api
+      .get<Blob>('/relatorios/exportar/imoveis', { responseType: 'blob' })
+      .then((r) => r.data),
   porCartorio: () =>
     api.get<LinhaPorCartorio[]>('/relatorios/imoveis-por-cartorio').then((r) => r.data),
   porTipo: () => api.get<LinhaAgrupada[]>('/relatorios/imoveis-por-tipo').then((r) => r.data),

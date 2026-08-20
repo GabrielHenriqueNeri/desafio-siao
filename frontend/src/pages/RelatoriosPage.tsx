@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { extrairErro } from '../api/client';
 import { relatoriosApi } from '../api/services';
+import { baixarArquivo } from '../utils/baixarArquivo';
 import {
   fmtBRL,
   LinhaAgrupada,
@@ -100,6 +101,14 @@ export function RelatoriosPage() {
           <h1>Relatórios</h1>
           <div className="sub">Consolidados do acervo por cartório, tipo e status</div>
         </div>
+        <button
+          className="btn"
+          onClick={() =>
+            relatoriosApi.exportarImoveisCsv().then((csv) => baixarArquivo(csv, 'imoveis.csv'))
+          }
+        >
+          ⬇ Exportar imóveis (CSV)
+        </button>
       </div>
 
       <div className="painel">

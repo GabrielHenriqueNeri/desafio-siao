@@ -27,6 +27,15 @@ export interface LinhaAgrupada {
   valor_total_avaliado: number;
 }
 
+/** Aspas duplas em volta de campos com ';', '"' ou quebra de linha (RFC 4180). */
+export function escaparCampoCsv(valor: unknown): string {
+  const texto = valor === null || valor === undefined ? '' : String(valor);
+  if (/[";\r\n]/.test(texto)) {
+    return `"${texto.replace(/"/g, '""')}"`;
+  }
+  return texto;
+}
+
 @Injectable()
 export class RelatoriosService {
   constructor(
@@ -106,6 +115,47 @@ export class RelatoriosService {
       valor_total_avaliado: valorPorCartorio.get(Number(linha.cartorio_id)) ?? 0,
       total_usuarios: Number(linha.total_usuarios),
     }));
+  }
+
+  /**
+   * Exporta o acervo de imóveis ativos em CSV (separador ';' e BOM UTF-8,
+   * que é o formato que o Excel brasileiro abre corretamente).
+   */
+  async exportarImoveisCsv(): Promise<string> {
+    const imoveis = await this.imoveisRepo.find({
+      relations: { cartorio: true },
+      order: { id: 'ASC' },
+    });
+
+    const cabecalho = [
+      'id', 'matricula', 'tipo', 'status', 'logradouro', 'numero', 'bairro',
+      'cidade', 'estado', 'cep', 'area_total_m2', 'valor_avaliado',
+      'proprietario_nome', 'proprietario_cpf', 'cartorio',
+    ];
+
+    const linhas = imoveis.map((imovel) =>
+      [
+        imovel.id,
+        imovel.matricula,
+        imovel.tipo,
+        imovel.status,
+        imovel.logradouro,
+        imovel.numero,
+        imovel.bairro,
+        imovel.cidade,
+        imovel.estado,
+        imovel.cep,
+        imovel.area_total,
+        imovel.valor_avaliado,
+        imovel.proprietario_nome,
+        imovel.proprietario_cpf,
+        imovel.cartorio?.nome ?? '',
+      ]
+        .map(escaparCampoCsv)
+        .join(';'),
+    );
+
+    return [cabecalho.join(';'), ...linhas].join('\r\n');
   }
 
   imoveisPorTipo(): Promise<LinhaAgrupada[]> {

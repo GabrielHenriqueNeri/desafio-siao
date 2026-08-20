@@ -1,5 +1,6 @@
-import { Controller, Get } from '@nestjs/common';
-import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { Controller, Get, Res } from '@nestjs/common';
+import { ApiBearerAuth, ApiOperation, ApiProduces, ApiTags } from '@nestjs/swagger';
+import { Response } from 'express';
 import {
   LinhaAgrupada,
   LinhaPorCartorio,
@@ -35,5 +36,17 @@ export class RelatoriosController {
   @ApiOperation({ summary: 'Distribuição de imóveis por status' })
   imoveisPorStatus(): Promise<LinhaAgrupada[]> {
     return this.relatoriosService.imoveisPorStatus();
+  }
+
+  @Get('exportar/imoveis')
+  @ApiOperation({ summary: 'Exporta o acervo de imóveis em CSV (download)' })
+  @ApiProduces('text/csv')
+  async exportarImoveis(@Res() res: Response): Promise<void> {
+    const csv = await this.relatoriosService.exportarImoveisCsv();
+    res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+    res.setHeader('Content-Disposition', 'attachment; filename="imoveis.csv"');
+    // BOM U+FEFF para o Excel reconhecer UTF-8 (acentos corretos)
+    const BOM = String.fromCharCode(0xfeff);
+    res.send(BOM + csv);
   }
 }

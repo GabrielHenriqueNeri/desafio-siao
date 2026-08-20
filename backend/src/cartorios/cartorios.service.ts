@@ -87,10 +87,26 @@ export class CartoriosService {
   }
 
   async restore(id: number): Promise<Cartorio> {
-    const resultado = await this.cartoriosRepo.restore(id);
-    if (!resultado.affected) {
+    const cartorio = await this.cartoriosRepo.findOne({
+      where: { id },
+      withDeleted: true,
+    });
+    if (!cartorio) {
       throw new NotFoundException(`Cartório ${id} não encontrado`);
     }
+
+    // O CNPJ pode ter sido reaproveitado por outro cartório enquanto este
+    // estava excluído — restaurar violaria o índice único
+    const ocupante = await this.cartoriosRepo.findOne({
+      where: { cnpj: cartorio.cnpj },
+    });
+    if (ocupante && ocupante.id !== id) {
+      throw new ConflictException(
+        `Não é possível restaurar: o CNPJ deste cartório já está em uso pelo cartório ${ocupante.id}`,
+      );
+    }
+
+    await this.cartoriosRepo.restore(id);
     return this.findOne(id);
   }
 

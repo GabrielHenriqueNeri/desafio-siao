@@ -4,6 +4,7 @@ import { NestFactory, Reflector } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import helmet from 'helmet';
 import { AppModule } from './app.module';
+import { DatabaseExceptionFilter } from './common/filters/database-exception.filter';
 
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule);
@@ -31,6 +32,9 @@ async function bootstrap(): Promise<void> {
 
   // Serialização: garante que campos @Exclude (ex.: password) nunca vazem
   app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
+
+  // Erros do banco viram códigos HTTP semânticos, sem expor detalhes internos
+  app.useGlobalFilters(new DatabaseExceptionFilter());
 
   const swaggerConfig = new DocumentBuilder()
     .setTitle('Desafio Sião — API de Cartórios e Imóveis')

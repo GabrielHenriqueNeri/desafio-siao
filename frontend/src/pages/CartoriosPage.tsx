@@ -53,7 +53,15 @@ export function CartoriosPage() {
     setErroLista(null);
     cartoriosApi
       .listar({ pagina, limite: 10, busca: buscaEstavel })
-      .then(setLista)
+      .then((resposta) => {
+        // Se o último registro da página foi excluído, recua uma página em vez
+        // de deixar uma lista vazia na tela
+        if (resposta.dados.length === 0 && resposta.pagina > 1) {
+          setPagina(resposta.pagina - 1);
+          return;
+        }
+        setLista(resposta);
+      })
       .catch((excecao) => setErroLista(extrairErro(excecao)))
       .finally(() => setCarregando(false));
   }, [pagina, buscaEstavel]);

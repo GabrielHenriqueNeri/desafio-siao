@@ -108,10 +108,30 @@ export class UsuariosService {
   }
 
   async restore(id: number): Promise<Usuario> {
-    const resultado = await this.usuariosRepo.restore(id);
-    if (!resultado.affected) {
+    const usuario = await this.usuariosRepo.findOne({
+      where: { id },
+      withDeleted: true,
+    });
+    if (!usuario) {
       throw new NotFoundException(`Usuário ${id} não encontrado`);
     }
+
+    // E-mail e CPF podem ter sido reaproveitados enquanto o usuário estava
+    // excluído — restaurar violaria os índices únicos
+    const [emailOcupado, cpfOcupado] = await Promise.all([
+      this.usuariosRepo.findOne({ where: { email: usuario.email } }),
+      this.usuariosRepo.findOne({ where: { cpf: usuario.cpf } }),
+    ]);
+    if (
+      (emailOcupado && emailOcupado.id !== id) ||
+      (cpfOcupado && cpfOcupado.id !== id)
+    ) {
+      throw new ConflictException(
+        'Não é possível restaurar: o e-mail ou o CPF deste usuário já está em uso por outro cadastro ativo',
+      );
+    }
+
+    await this.usuariosRepo.restore(id);
     return this.findOne(id);
   }
 

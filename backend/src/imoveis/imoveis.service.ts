@@ -96,10 +96,26 @@ export class ImoveisService {
   }
 
   async restore(id: number): Promise<Imovel> {
-    const resultado = await this.imoveisRepo.restore(id);
-    if (!resultado.affected) {
+    const imovel = await this.imoveisRepo.findOne({
+      where: { id },
+      withDeleted: true,
+    });
+    if (!imovel) {
       throw new NotFoundException(`Imóvel ${id} não encontrado`);
     }
+
+    // A matrícula pode ter sido reaproveitada no mesmo cartório enquanto este
+    // imóvel estava excluído — restaurar violaria o índice único
+    const ocupante = await this.imoveisRepo.findOne({
+      where: { matricula: imovel.matricula, cartorio_id: imovel.cartorio_id },
+    });
+    if (ocupante && ocupante.id !== id) {
+      throw new ConflictException(
+        `Não é possível restaurar: a matrícula ${imovel.matricula} já está em uso neste cartório pelo imóvel ${ocupante.id}`,
+      );
+    }
+
+    await this.imoveisRepo.restore(id);
     return this.findOne(id);
   }
 

@@ -152,7 +152,14 @@ Listagens respondem no envelope `{ dados, total, pagina, limite, total_paginas }
   - mensagem única para e-mail inexistente × senha errada (anti-enumeração);
   - `helmet`, CORS restrito à origem do front, **rate limiting** (throttler);
   - variáveis de ambiente validadas na subida (Joi, fail-fast) e fora do Git;
-  - container da API roda com usuário não-root.
+  - container da API roda com usuário não-root;
+  - filtro global de erros do banco: violações de constraint viram códigos HTTP
+    semânticos (409/400) e o detalhe técnico fica só no log — a estrutura do
+    banco nunca aparece na resposta.
+- **Restauração segura** — antes de restaurar um registro excluído, a API
+  confere se o documento único (CNPJ, CPF/e-mail ou matrícula) foi reaproveitado
+  por outro cadastro ativo; se foi, responde 409 explicando, em vez de esbarrar
+  na constraint.
 - **Relatórios** — agregações feitas no PostgreSQL (`JOIN` + `GROUP BY` +
   `SUM/COUNT`) via QueryBuilder, não em memória.
 - **Resiliência a falhas de ambiente** — `GET /api/health` (público) confirma

@@ -95,4 +95,34 @@ describe('CartoriosService', () => {
       expect(cartoriosRepo.softDelete).toHaveBeenCalledWith(1);
     });
   });
+
+  describe('restore', () => {
+    it('recusa com 409 quando o CNPJ foi reaproveitado por outro cartório', async () => {
+      cartoriosRepo.findOne
+        // busca do registro excluído (withDeleted)
+        .mockResolvedValueOnce({ id: 1, ...dtoBase })
+        // outro cartório ativo já usa o mesmo CNPJ
+        .mockResolvedValueOnce({ id: 42, ...dtoBase });
+
+      await expect(service.restore(1)).rejects.toBeInstanceOf(ConflictException);
+      expect(cartoriosRepo.restore).not.toHaveBeenCalled();
+    });
+
+    it('restaura quando o CNPJ continua livre', async () => {
+      cartoriosRepo.findOne
+        .mockResolvedValueOnce({ id: 1, ...dtoBase })
+        .mockResolvedValueOnce(null)
+        .mockResolvedValueOnce({ id: 1, ...dtoBase });
+
+      await service.restore(1);
+
+      expect(cartoriosRepo.restore).toHaveBeenCalledWith(1);
+    });
+
+    it('lança 404 quando o cartório não existe nem entre os excluídos', async () => {
+      cartoriosRepo.findOne.mockResolvedValueOnce(null);
+
+      await expect(service.restore(777)).rejects.toBeInstanceOf(NotFoundException);
+    });
+  });
 });

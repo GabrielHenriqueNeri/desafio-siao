@@ -104,14 +104,13 @@ export function UsuariosPage() {
     const payload: Record<string, unknown> = {
       ...form,
       estado: form.estado.toUpperCase(),
-      cartorio_id: form.cartorio_id ? Number(form.cartorio_id) : undefined,
+      // "Sem vínculo" precisa virar null explícito — omitir o campo faria a API
+      // manter o cartório atual, impossibilitando desvincular
+      cartorio_id: form.cartorio_id ? Number(form.cartorio_id) : null,
     };
     // Na edição, senha em branco significa "não alterar"
     if (editando && !form.password) {
       delete payload.password;
-    }
-    if (payload.cartorio_id === undefined) {
-      delete payload.cartorio_id;
     }
 
     try {

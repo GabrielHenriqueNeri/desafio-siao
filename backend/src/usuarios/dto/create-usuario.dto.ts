@@ -66,9 +66,13 @@ export class CreateUsuarioDto {
   @Matches(/^\d{5}-?\d{3}$/, { message: 'CEP inválido (formato 00000-000)' })
   cep: string;
 
-  @ApiPropertyOptional({ example: 1, description: 'ID do cartório ao qual o usuário pertence' })
+  @ApiPropertyOptional({
+    example: 1,
+    nullable: true,
+    description: 'ID do cartório ao qual o usuário pertence (null para desvincular)',
+  })
   @IsOptional()
   @Type(() => Number)
   @IsInt()
-  cartorio_id?: number;
+  cartorio_id?: number | null;
 }

@@ -95,7 +95,10 @@ export class UsuariosService {
       alteracoes.password = await bcrypt.hash(dto.password, BCRYPT_ROUNDS);
     }
 
-    await this.usuariosRepo.save({ ...usuario, ...alteracoes });
+    // A relação `cartorio` carregada tem precedência sobre a coluna cartorio_id
+    // no save() — mantê-la reverteria a desvinculação (cartorio_id: null).
+    const { cartorio: _cartorio, ...dadosAtuais } = usuario;
+    await this.usuariosRepo.save({ ...dadosAtuais, ...alteracoes });
     return this.findOne(id);
   }
 
